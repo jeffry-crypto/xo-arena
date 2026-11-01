@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XO Arena</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--ink:#fff;--mute:#d6c8ff;--card:rgba(255,255,255,.12);--line:rgba(255,255,255,.22);--x:#ffd43b;--o:#3df2ff;--ok:#69f0ae;--bad:#ff6b81;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);min-height:100%}
+body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#1b0b4a linear-gradient(160deg,#1b0b4a,#5a189a 45%,#c9184a);background-attachment:fixed}
+.wrap{max-width:440px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px}
+h1{font-size:22px;margin:0;background:linear-gradient(90deg,#ffd43b,#ff6b81,#3df2ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900}
+.hr{display:flex;gap:8px;align-items:center}
+.wal{background:linear-gradient(90deg,#ffd43b,#ff9f43);color:#2b0a3d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
+.icon{padding:8px 11px;background:var(--card);border:1px solid var(--line);color:#fff;font-size:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;backdrop-filter:blur(8px)}
+.mute{color:var(--mute);font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>button{flex:1}
+button{font:inherit;border:0;border-radius:14px;padding:13px 16px;font-weight:800;cursor:pointer;color:#2b0a3d;background:linear-gradient(90deg,#ffd43b,#ff9f43);transition:transform .1s}
+button:active{transform:scale(.95)}
+button.sec{background:var(--card);color:#fff;border:1px solid var(--line)}
+button.pink{background:linear-gradient(90deg,#ff4ecd,#ff6b81);color:#fff}
+button:disabled{opacity:.45}
+.big{width:100%;font-size:18px;padding:16px}
+.stat{display:flex;gap:18px;margin:6px 0 12px}.stat b{display:block;font-size:22px}
+.rank{font-size:30px;font-weight:900;background:linear-gradient(90deg,#3df2ff,#ffd43b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bar{height:12px;background:rgba(0,0,0,.3);border-radius:99px;overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#69f0ae,#3df2ff,#ffd43b)}
+.pot{text-align:center;font-weight:700;font-size:14px}
+.msg{text-align:center;font-size:18px;font-weight:800;margin:4px 0}
+.msg.winm{font-size:24px;color:#ffd43b;animation:bounce .7s infinite alternate}
+.msg.losem{color:var(--bad);animation:shake .6s}
+.note{font-size:12px;color:var(--mute);text-align:center;margin-top:10px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 8px var(--ok)}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;border-radius:18px}
+.cell{aspect-ratio:1;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:16px;font-size:46px;font-weight:900;padding:0;color:#fff;overflow:hidden}
+.cell:disabled{opacity:1;cursor:default}
+.cell:not(:disabled){box-shadow:inset 0 0 14px rgba(255,255,255,.08)}
+.cell.X{color:var(--x)}.cell.O{color:var(--o)}
+.g{display:inline-block}
+.cell.n{animation:pop .4s}
+.cell.winc{background:rgba(255,212,59,.35);animation:wc .5s infinite alternate}
+.board.win{animation:glow .7s infinite alternate}
+.board.lose{animation:shake .6s}.board.lose .cell{filter:grayscale(.85)}
+.sk-neon.X .g{color:#ff4ecd;animation:neon 1.2s infinite alternate}.sk-neon.O .g{color:#3df2ff;animation:neon 1.2s infinite alternate}
+.sk-fire .g{animation:flick .45s infinite alternate}
+.sk-ice .g{animation:shim 2s infinite}
+.sk-galaxy .g{animation:spin 3s linear infinite}
+.sk-gold .g{animation:bob 1s ease-in-out infinite;filter:drop-shadow(0 0 8px #ffd43b)}
+.sk-neon.X .g,.sk-neon.O .g{font-size:.9em}
+@keyframes pop{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes neon{from{text-shadow:0 0 4px currentColor,0 0 8px currentColor}to{text-shadow:0 0 14px currentColor,0 0 32px currentColor}}
+@keyframes flick{from{transform:translateY(0) scale(1)}to{transform:translateY(-5px) scale(1.14) rotate(5deg)}}
+@keyframes shim{0%,100%{filter:hue-rotate(0) brightness(1)}50%{filter:hue-rotate(50deg) brightness(1.6)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.15)}}
+@keyframes bounce{to{transform:scale(1.12)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+@keyframes glow{from{box-shadow:0 0 6px #ffd43b}to{box-shadow:0 0 30px #ff4ecd}}
+@keyframes wc{to{transform:scale(1.07)}}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@keyframes fl{0%{opacity:.6}100%{opacity:0}}
+.cf{position:fixed;top:-20px;font-size:22px;pointer-events:none;z-index:50;animation:fall linear forwards}
+.flash{position:fixed;inset:0;background:#ff1744;pointer-events:none;z-index:50;animation:fl .8s forwards}
+.skin{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.skin:first-of-type{border-top:0}
+.skin .pv{display:flex;gap:6px;font-size:34px;min-width:96px;justify-content:center}
+.skin .pv span{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);border-radius:12px}
+.skin .nm{flex:1;font-weight:800}
+.skin button{padding:9px 12px;font-size:14px}
+.rb{display:inline-flex;width:1.7em;height:1.7em;border-radius:50%;align-items:center;justify-content:center;font-size:.85em;box-shadow:0 0 10px rgba(255,255,255,.35);vertical-align:middle}
+.rb.lg{font-size:26px;margin-right:8px}
+.av{width:38px;height:38px;border-radius:50%;object-fit:cover;background:rgba(0,0,0,.3);display:inline-flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
+.lr{display:flex;align-items:center;gap:10px;padding:9px 6px;border-top:1px solid var(--line);border-radius:10px}
+.lr.me{background:rgba(255,212,59,.2)}
+.lr .pos{width:26px;font-weight:900;text-align:center}
+.lr .nm{flex:1;min-width:0;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lr .rp{text-align:right;font-weight:800;font-size:14px}
+input[type=text]{width:100%;font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:#fff;margin:8px 0}
+.ov{position:fixed;inset:0;background:rgba(10,0,30,.85);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.ov .card{max-width:340px;width:100%;text-align:center}
+.vid{height:140px;border-radius:14px;background:linear-gradient(135deg,#ff4ecd,#3df2ff,#ffd43b);display:flex;align-items:center;justify-content:center;font-weight:900;color:#2b0a3d;margin:10px 0;font-size:18px}
+</style>
+</head>
+<body>
+<div class="wrap"><header><h1>XO Arena</h1><div class="hr"><button class="icon" id="mute">🔊</button><div class="wal" id="wal"></div></div></header><div id="app"></div>
+<div class="note">Free to play. Rank, streak and skins are saved to your account. Ads are a placeholder.</div></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,get,set,push,remove,onValue,onDisconnect,runTransaction,query,orderByChild,limitToLast} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyCPlzlUeHgpioTarQNhvhRZ--1CGEFifxs",authDomain:"xo-arena-1aa90.firebaseapp.com",databaseURL:"https://xo-arena-1aa90-default-rtdb.europe-west1.firebasedatabase.app",projectId:"xo-arena-1aa90",storageBucket:"xo-arena-1aa90.firebasestorage.app",messagingSenderId:"351508257059",appId:"1:351508257059:web:b3821b228a05f604089496"});
+const auth=getAuth(app),db=getDatabase(app);
+const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+let uid=null,queued=false,game=null,notice='',online=false,onlineN=0,qiv=null,started=false;
+const RANKS=[['Bronze',0],['Silver',100],['Gold',250],['Platinum',450],['Diamond',700],['Master',1000]];
+let S={rp:0,streak:0,best:0,w:0,l:0,d:0,owned:['classic'],ads:{},skin:'classic',mute:false};
+let view='lobby',lb=[],dbOk=false,pt=null,waitN=0;
+S.name='';S.av='';
+const RICON=['🥉','🥈','🥇','💠','💎','👑'],RGRAD=['#cd7f32,#8a4b14','#f1f3f5,#8d99ae','#ffd43b,#f08c00','#74f0ff,#4d7cff','#a5d8ff,#b197fc','#ff6b81,#ff4ecd,#ffd43b'];
+const badge=(i,lg)=>`<span class="rb ${lg?'lg':''}" style="background:linear-gradient(135deg,${RGRAD[i]})">${RICON[i]}</span>`;
+const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const goodAv=v=>typeof v==='string'&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(v)&&v.length<20000;
+const avHtml=v=>goodAv(v)?`<img class="av" src="${v}" alt="">`:'<span class="av">👤</span>';
+function pushProfile(){if(!uid||!S.name)return;set(ref(db,'players/'+uid),{name:S.name,rp:S.rp,best:S.best,w:S.w,l:S.l,d:S.d,av:goodAv(S.av)?S.av:'',owned:S.owned,skin:S.skin,ads:S.ads||{}}).catch(()=>{})}
+function lbHtml(){if(!lb.length)return '<div class="mute" style="text-align:center;padding:12px">No players yet. Save a name to join the board.</div>';
+ return lb.map((p,i)=>{const ri=rIdx(+p.rp||0);return `<div class="lr ${p.id===uid?'me':''}"><div class="pos">${i+1}</div>${avHtml(p.av)}<div class="nm">${esc(String(p.name||'Player').slice(0,16))}<div class="mute">${badge(ri)} ${RANKS[ri][0]} · 🔥${+p.best||0}</div></div><div class="rp">${+p.rp||0} RP</div></div>`}).join('')}
+function renderBoard(a){
+ a.innerHTML=`<div class="card"><div class="msg">🏆 Leaderboard</div>
+ <div class="mute" style="text-align:center">${dbOk?'<span class="dot"></span>Live board':'Board offline: your profile still saves on this device'}</div>
+ <div id="lb">${lbHtml()}</div></div>
+ <div class="card"><div class="msg">Your profile</div>
+ <div style="display:flex;align-items:center;gap:12px"><span id="pv">${avHtml(S.av)}</span><button class="sec" id="pick">📷 Choose image</button></div>
+ <input type="file" id="fi" accept="image/*" hidden>
+ <input type="text" id="nm" maxlength="16" placeholder="Your username" value="${esc(S.name)}">
+ <button class="big" id="saveprof">Save profile</button><div class="pot" id="pnote" style="margin-top:8px"></div></div>
+ <button class="big sec" id="back">Back</button>`;
+}
+function setImage(file){
+ if(!file||!/^image\//.test(file.type))return;
+ const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),m=Math.min(im.width,im.height);x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,64,64);
+  S.av=c.toDataURL('image/jpeg',.75);save();const pv=$('pv');if(pv)pv.innerHTML=avHtml(S.av);const n=$('pnote');if(n)n.textContent=S.name?'Image updated':'Image set. Add a username and save.'};im.src=fr.result};fr.readAsDataURL(file)}
+const SKINS=[{id:'classic',n:'Classic',x:'X',o:'O',c:0},{id:'neon',n:'Neon Glow',x:'✕',o:'◯',c:1},{id:'fire',n:'Fire & Water',x:'🔥',o:'💧',c:2},{id:'ice',n:'Frost',x:'❄️',o:'🧊',c:2},{id:'galaxy',n:'Galaxy',x:'⭐',o:'🌙',c:3},{id:'gold',n:'Royal Gold',x:'👑',o:'💎',c:4}];
+const skinOf=id=>SKINS.find(k=>k.id===id)||SKINS[0];
+let AC=null;
+function tone(f,d,type,v,t0,f2){if(S.mute||!AC)return;const t=AC.currentTime+(t0||0),o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v||.2,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02)}
+function sfx(k){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C()}if(AC&&AC.state==='suspended')AC.resume()}catch(e){return}
+ if(k==='x'){tone(480,.12,'square',.12,0,900);tone(900,.1,'triangle',.1,.05)}
+ else if(k==='o'){tone(320,.16,'sine',.25,0,640);tone(640,.12,'sine',.15,.06)}
+ else if(k==='win')[523,659,784,1047,1319].forEach((f,i)=>tone(f,.25,'triangle',.22,i*.1));
+ else if(k==='lose')[392,330,262,196].forEach((f,i)=>tone(f,.3,'sawtooth',.12,i*.16));
+ else if(k==='click')tone(600,.05,'square',.06)}
+function confetti(){const c=['🎉','✨','⭐','🟡','🟣','🔵','💥'];for(let i=0;i<60;i++){const e=document.createElement('div');e.className='cf';e.textContent=c[i%c.length];e.style.left=Math.random()*100+'vw';e.style.animationDuration=(2+Math.random()*2.5)+'s';e.style.animationDelay=Math.random()*.5+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),5200)}}
+function flash(){const e=document.createElement('div');e.className='flash';document.body.appendChild(e);setTimeout(()=>e.remove(),900)}
+const rIdx=rp=>{let i=0;RANKS.forEach((r,k)=>{if(rp>=r[1])i=k});return i};
+const $=id=>document.getElementById(id);
+S.owned=Array.isArray(S.owned)?S.owned:['classic'];S.ads=S.ads||{};
+function save(){clearTimeout(pt);pt=setTimeout(pushProfile,600)}
+function applyResult(res){
+ const before=rIdx(S.rp);let t='';
+ if(res==='win'){S.streak++;S.best=Math.max(S.best,S.streak);const bonus=Math.min(S.streak-1,5)*5;S.rp+=25+bonus;S.w++;
+  t='+'+(25+bonus)+' RP'+(bonus?' (streak bonus +'+bonus+')':'')}
+ else if(res==='loss'){const lost=Math.min(15,S.rp);S.streak=0;S.rp-=lost;S.l++;t='−'+lost+' RP, streak reset'}
+ else{S.d++;t='No RP change, streak kept'}
+ const after=rIdx(S.rp);
+ if(after>before)t+=' · Rank up: '+RANKS[after][0]+'!';
+ else if(after<before)t+=' · Dropped to '+RANKS[after][0];
+ save();return t}
+function winLine(c){return L.find(l=>l.every(i=>c.includes(i)))||null}
+function boardOf(g){const b=Array(9).fill(null);const mine=g.seat,opp=mine==='X'?'O':'X';g.cells.forEach(i=>b[i]=mine);g.oppCells.forEach(i=>{if(b[i]===null)b[i]=opp});return b}
+function turnOf(g){return (g.cells.length+g.oppCells.length)%2===0?'X':'O'}
+function render(){
+ $('wal').innerHTML=badge(rIdx(S.rp))+' '+RANKS[rIdx(S.rp)][0]+' · '+S.rp+' RP';
+ const a=$('app');
+ $('mute').textContent=S.mute?'🔇':'🔊';
+ if(!uid){a.innerHTML='<div class="card" style="text-align:center"><div class="rank" style="font-size:30px">XO Arena</div><div class="mute" style="margin:8px 0 16px">Climb the ranks. Beat players online.</div><button class="big" id="login">Sign in with Google</button>'+(notice?'<div class="msg">'+notice+'</div>':'')+'</div>';return}
+ if(!game&&view==='store')return renderStore(a);
+ if(!game&&view==='board')return renderBoard(a);
+ if(!game){
+  const viewers={length:onlineN},inq=waitN;
+  const ri=rIdx(S.rp),nx=RANKS[ri+1],pct=nx?Math.round((S.rp-RANKS[ri][1])/(nx[1]-RANKS[ri][1])*100):100;
+  a.innerHTML=`<div class="card"><div class="mute">${online?'<span class="dot"></span>Lobby live':'Lobby offline: bot practice only'}</div>
+  <div style="margin-top:6px;display:flex;align-items:center">${badge(ri,1)}<span class="rank">${RANKS[ri][0]}</span></div>
+  <div class="bar"><i style="width:${pct}%"></i></div>
+  <div class="mute">${nx?(nx[1]-S.rp)+' RP to '+nx[0]:'Top rank reached'}</div>
+  <div class="stat" style="margin-top:12px"><div><b>🔥 ${S.streak}</b><span class="mute">win streak</span></div><div><b>${S.best}</b><span class="mute">best streak</span></div><div><b>${S.w}-${S.l}-${S.d}</b><span class="mute">W-L-D</span></div></div>
+  <div class="stat"><div><b>${Math.max(viewers.length,online?1:0)}</b><span class="mute">online</span></div><div><b>${inq}</b><span class="mute">waiting</span></div></div>
+  ${notice?`<div class="msg">${notice}</div>`:''}
+  ${queued?`<div class="msg">Searching for an opponent…</div><button class="big sec" id="cancel">Cancel</button>`
+   :`<button class="big" id="find" ${online?'':'disabled'}>Play ranked match</button>`}
+  <div class="pot" style="margin-top:12px">Win +25 RP · Win streaks add bonus RP · Loss −15 RP</div></div>
+  <div class="row"><button class="pink" id="store">🛍 Skins</button><button id="board">🏆 Leaderboard</button></div><button class="big sec" id="bot" style="margin-top:8px">Practice vs bot</button>`;
+  return;
+ }
+ const g=game,b=boardOf(g),line=g.over?winLine(g.winner==='X'?(g.seat==='X'?g.cells:g.oppCells):(g.seat==='O'?g.cells:g.oppCells)):null;
+ let st;
+ if(g.over)st=`<div class="msg ${g.res==='win'?'winm':g.res==='loss'?'losem':''}">${g.res==='win'?'🏆 ':g.res==='loss'?'💀 ':''}${g.text}</div>`;
+ else st=`<div class="msg">${turnOf(g)===g.seat?'Your turn':'Opponent’s turn'}</div>`;
+ const mine=skinOf(S.skin),theirs=skinOf(g.oppSkin);
+ a.innerHTML=`<div class="card"><div class="pot">${g.bot?'Practice game':'Ranked match'} · You are <span style="color:var(--${g.seat==='X'?'x':'o'})">${g.seat}</span></div>${st}
+ <div class="board ${g.over&&g.res==='win'?'win':''} ${g.over&&g.res==='loss'?'lose':''}">${b.map((v,i)=>{const k=v?(v===g.seat?mine:theirs):null;return `<button class="cell ${v||''} ${k?'sk-'+k.id:''} ${g.last===i&&!g.over?'n':''} ${line&&line.includes(i)?'winc':''}" data-i="${i}" ${v||g.over?'disabled':''}>${v?`<span class="g">${v==='X'?k.x:k.o}</span>`:''}</button>`}).join('')}</div>
+ <button class="big ${g.over?'':'sec'}" id="leave">${g.over?'Back to lobby':(g.bot?'Quit':'Forfeit &amp; leave')}</button></div>`;
+}
+function renderStore(a){
+ a.innerHTML=`<div class="card"><div class="msg">🛍 Skin store</div><div class="mute" style="text-align:center;margin-bottom:6px">Watch ads to unlock skins. Each skin has its own animation.</div>
+ ${SKINS.map(k=>{const own=S.owned.includes(k.id),got=S.ads[k.id]||0,eq=S.skin===k.id;
+ return `<div class="skin"><div class="pv"><span class="cell X sk-${k.id}"><span class="g">${k.x}</span></span><span class="cell O sk-${k.id}"><span class="g">${k.o}</span></span></div>
+ <div class="nm">${k.n}<div class="mute">${own?(eq?'Equipped':'Unlocked'):'Ads watched '+got+'/'+k.c}</div></div>
+ ${own?`<button data-eq="${k.id}" ${eq?'disabled class="sec"':''}>${eq?'Equipped':'Equip'}</button>`:`<button class="pink" data-ad="${k.id}">▶ Watch ad</button>`}</div>`}).join('')}
+ </div><button class="big sec" id="back">Back</button>`;
+}
+function watchAd(id){
+ const k=skinOf(id),ov=document.createElement('div');ov.className='ov';
+ ov.innerHTML=`<div class="card"><div class="mute">Sponsored (placeholder ad)</div><div class="vid">Your ad here</div><div class="msg" id="adt">Reward in 5s</div><button class="big" id="adc" disabled>Claim reward</button></div>`;
+ document.body.appendChild(ov);let n=5;
+ const iv=setInterval(()=>{n--;if(n>0)ov.querySelector('#adt').textContent='Reward in '+n+'s';else{clearInterval(iv);ov.querySelector('#adt').textContent='Thanks for watching!';ov.querySelector('#adc').disabled=false}},1000);
+ ov.querySelector('#adc').onclick=()=>{S.ads[id]=(S.ads[id]||0)+1;if(S.ads[id]>=k.c&&!S.owned.includes(id)){S.owned.push(id);S.skin=id;sfx('win');confetti()}save();ov.remove();render()};
+}
+function endFx(r){if(r==='win'){setTimeout(()=>sfx('win'),150);confetti()}else if(r==='loss'){setTimeout(()=>sfx('lose'),150);flash()}}
+function settle(g,winner){
+ if(g.over)return;g.over=true;g.winner=winner;
+ const r=winner==='draw'?'draw':winner===g.seat?'win':'loss';g.res=r;
+ const lbl=r==='win'?'You win!':r==='loss'?'You lose':'Draw';
+ g.text=g.bot?lbl:lbl+' '+applyResult(r);
+ render();endFx(r);
+}
+function evaluate(g){
+ if(g.over)return;
+ const x=g.seat==='X'?g.cells:g.oppCells,o=g.seat==='O'?g.cells:g.oppCells;
+ if(winLine(x))return settle(g,'X');if(winLine(o))return settle(g,'O');
+ if(x.length+o.length>=9)return settle(g,'draw');
+}
+function mm(b,p){const w=L.find(l=>b[l[0]]&&b[l[0]]===b[l[1]]&&b[l[0]]===b[l[2]]);if(w)return{s:b[w[0]]==='O'?1:-1};if(b.every(Boolean))return{s:0};let best=null;
+ for(let i=0;i<9;i++)if(!b[i]){b[i]=p;const r=mm(b,p==='O'?'X':'O');b[i]=null;if(!best||(p==='O'?r.s>best.s:r.s<best.s))best={s:r.s,m:i}}return best}
+function botMove(g){
+ setTimeout(()=>{if(game!==g||g.over)return;const b=boardOf(g);const free=b.map((v,i)=>v?null:i).filter(v=>v!==null);if(!free.length)return;
+  const m=Math.random()<.3?free[Math.floor(Math.random()*free.length)]:mm(b.slice(),'O').m;g.oppCells.push(m);g.last=m;sfx(g.seat==='X'?'o':'x');evaluate(g);render()},500)}
+function play(i){
+ const g=game;if(!g||g.over||turnOf(g)!==g.seat||boardOf(g)[i])return;
+ sfx(g.seat==='X'?'x':'o');
+ if(!g.bot){set(ref(db,'games/'+g.gid+'/moves/'+(g.cells.length+g.oppCells.length)),{u:uid,c:i}).catch(()=>{});return}
+ g.cells.push(i);g.last=i;evaluate(g);render();if(!g.over)botMove(g)
+}
+async function startApp(){
+ if(started)return;started=true;online=true;
+ const on=ref(db,'online/'+uid);set(on,true);onDisconnect(on).remove();
+ onValue(ref(db,'online'),sn=>{onlineN=sn.size;if(!game&&view==='lobby'&&!queued)render()});
+ onValue(ref(db,'lobby/waiting'),sn=>{waitN=sn.exists()?1:0;if(!game&&view==='lobby'&&!queued)render()});
+ onValue(query(ref(db,'players'),orderByChild('rp'),limitToLast(20)),sn=>{const a=[];sn.forEach(c=>{a.push(Object.assign({id:c.key},c.val()))});lb=a.reverse();dbOk=true;const el=$('lb');if(el&&view==='board'&&!game)el.innerHTML=lbHtml()},()=>{dbOk=false});
+ onValue(ref(db,'userGame/'+uid),sn=>{const gid=sn.val();if(gid&&queued&&!game){remove(ref(db,'userGame/'+uid));startGame(gid,'X')}});
+ render()}
+async function findMatch(){
+ if(game||queued)return;queued=true;render();
+ const w=ref(db,'lobby/waiting');let opp=null;
+ try{await runTransaction(w,c=>{opp=null;if(c&&c.u&&c.u!==uid&&Date.now()-c.t<60000){opp=c.u;return null}return {u:uid,t:Date.now()}})}catch(e){queued=false;notice='Could not search. Try again.';render();return}
+ if(opp){try{const gid=push(ref(db,'games')).key;await set(ref(db,'games/'+gid),{x:opp,o:uid,t:Date.now()});await set(ref(db,'userGame/'+opp),gid);startGame(gid,'O')}catch(e){queued=false;notice='Match failed. Try again.';render()}}
+ else qiv=setInterval(()=>{runTransaction(w,c=>c&&c.u===uid?{u:uid,t:Date.now()}:c).catch(()=>{})},20000)}
+function cancelQueue(){clearInterval(qiv);queued=false;runTransaction(ref(db,'lobby/waiting'),c=>c&&c.u===uid?null:c).catch(()=>{});render()}
+function startGame(gid,seat){
+ if(game)return;queued=false;clearInterval(qiv);
+ const g=game={gid,seat,cells:[],oppCells:[],over:false,oppSkin:'classic'};
+ onDisconnect(ref(db,'games/'+gid+'/left/'+uid)).set(true);
+ g.off=onValue(ref(db,'games/'+gid),sn=>{const v=sn.val();if(!v||game!==g)return;
+  if(!g.opp){g.opp=seat==='X'?v.o:v.x;get(ref(db,'players/'+g.opp+'/skin')).then(r=>{if(SKINS.some(z=>z.id===r.val())){g.oppSkin=r.val();render()}}).catch(()=>{})}
+  const mv=v.moves||{},ks=Object.keys(mv).map(Number).sort((a,b)=>a-b),xs=[],os=[];let last=null;
+  for(let i=0;i<ks.length;i++){if(ks[i]!==i)break;const m=mv[i],xt=i%2===0;if(!m||m.u!==(xt?v.x:v.o)||!Number.isInteger(m.c)||m.c<0||m.c>8||xs.includes(m.c)||os.includes(m.c))break;(xt?xs:os).push(m.c);last=m.c}
+  const mine=seat==='X'?xs:os,theirs=seat==='X'?os:xs;
+  if(theirs.length>g.oppCells.length)sfx(seat==='X'?'o':'x');
+  g.cells=mine;g.oppCells=theirs;if(last!==null)g.last=last;
+  if(v.left&&v.left[g.opp]&&!g.over){g.over=true;g.winner=seat;g.res='win';g.text='Opponent left. You win! '+applyResult('win');endFx('win')}
+  evaluate(g);render()})}
+async function leave(){
+ const g=game;if(!g)return;
+ if(!g.over&&!g.bot)applyResult('loss');
+ if(g.off){g.off();onDisconnect(ref(db,'games/'+g.gid+'/left/'+uid)).cancel();if(g.over)remove(ref(db,'games/'+g.gid)).catch(()=>{});else set(ref(db,'games/'+g.gid+'/left/'+uid),true).catch(()=>{})}
+ game=null;queued=false;notice='';render()}
+document.addEventListener('change',e=>{if(e.target.id==='fi')setImage(e.target.files&&e.target.files[0])});
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ sfx(t.dataset.i!==undefined?'':'click');
+ if(t.dataset.i!==undefined)return play(+t.dataset.i);
+ if(t.id==='mute'){S.mute=!S.mute;save();return render()}
+ if(t.id==='login'){signInWithPopup(auth,new GoogleAuthProvider()).catch(()=>{notice='Sign-in failed. Try again.';render()});return}
+ if(t.id==='store'){view='store';return render()}
+ if(t.id==='back'){view='lobby';return render()}
+ if(t.id==='board'){view='board';return render()}
+ if(t.id==='pick'){$('fi').click();return}
+ if(t.id==='saveprof'){const v=$('nm').value.trim().slice(0,16);const n=$('pnote');if(!v){n.textContent='Enter a username first';return}S.name=v;save();const w=$('welcome');if(w){w.remove();startApp();return render()}n.textContent=db?'Saved. You’re on the leaderboard!':'Saved on this device (board offline)';return}
+ if(t.dataset.eq){S.skin=t.dataset.eq;save();return render()}
+ if(t.dataset.ad)return watchAd(t.dataset.ad);
+ if(t.id==='find'){notice='';findMatch();return}
+ if(t.id==='cancel'){cancelQueue();return}
+ if(t.id==='bot'){notice='';game={bot:true,seat:'X',cells:[],oppCells:[],over:false};render()}
+ if(t.id==='leave')leave();
+});
+function showWelcome(){
+ const o=document.createElement('div');o.className='ov';o.id='welcome';
+ o.innerHTML=`<div class="card"><div class="rank" style="font-size:28px">Welcome to XO Arena!</div><div class="mute">Set up your player profile</div>
+ <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px"><span id="pv">${avHtml('')}</span><button class="sec" id="pick">📷 Choose image</button></div>
+ <input type="file" id="fi" accept="image/*" hidden>
+ <input type="text" id="nm" maxlength="16" placeholder="Your username">
+ <button class="big" id="saveprof">Start playing</button><div class="pot" id="pnote" style="margin-top:8px"></div></div>`;
+ document.body.appendChild(o)}
+render();
+onAuthStateChanged(auth,async u=>{
+ if(!u){uid=null;online=false;render();return}
+ uid=u.uid;
+ try{const sn=await get(ref(db,'players/'+uid));if(sn.exists()){Object.assign(S,sn.val());if(!Array.isArray(S.owned))S.owned=Object.values(S.owned||{});if(!S.owned.includes('classic'))S.owned.unshift('classic');S.ads=S.ads||{}}}catch(e){}
+if(S.name)startApp();else showWelcome();
+ render()});
+</script>
+</body>
+</html>
